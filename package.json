@@ -16,7 +16,8 @@
     "bullmq": "^5.77.4",
     "dotenv": "^17.4.2",
     "fastify": "^5.8.5",
-    "ioredis": "^5.11.0"
+    "ioredis": "^5.11.0",
+    "resend": "^6.12.4"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
