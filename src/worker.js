@@ -1,13 +1,23 @@
 import { Worker } from "bullmq";
 import connection from "./config/redis-connection.js";
 import sendFakeEmail from "./utils/fake-email.js";
+import resend from "./config/resend.js";
 
 const worker = new Worker(
   "queue",
   async (job) => {
     console.log("Processing job: ", job.id);
 
-    await sendFakeEmail(job.data);
+    const { data } = job;
+
+    const res = await resend.emails.send({
+      from: "Sotechho <ceo@contact.sotechho.com>",
+      to: [data.to],
+      subject: data.subject,
+      text: data.subject,
+    });
+
+    console.log(res);
 
     return {
       completedAt: new Date(),
