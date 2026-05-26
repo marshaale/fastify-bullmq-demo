@@ -1,4 +1,6 @@
 import fastify from "fastify";
+import queue from "./config/queue.js";
+import connection from "./config/redis-connection.js";
 
 const app = fastify({
   logger: true,
@@ -8,6 +10,28 @@ app.get("/", (request, reply) => {
   return {
     message: "Server is working..........",
     timestamp: new Date().toISOString(),
+  };
+});
+
+app.post("/emails/send", async (request, reply) => {
+  const { to, subject } = request.body;
+
+  const job = await queue.add(
+    "send-email",
+    { to, subject },
+    {
+      attempts: 3,
+      removeOnComplete: true,
+      backoff: {
+        type: "exponential",
+        delay: 2000,
+      },
+    },
+  );
+
+  return {
+    success: true,
+    data: job,
   };
 });
 
