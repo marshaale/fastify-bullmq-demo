@@ -13,27 +13,42 @@ app.get("/", (request, reply) => {
   };
 });
 
-app.post("/emails/send", async (request, reply) => {
-  const { to, subject } = request.body;
-
-  const job = await queue.add(
-    "send-email",
-    { to, subject },
-    {
-      attempts: 3,
-      removeOnComplete: true,
-      backoff: {
-        type: "exponential",
-        delay: 2000,
+app.post(
+  "/emails/send",
+  {
+    schema: {
+      body: {
+        type: "object",
+        required: ["to", "subject"],
+        properties: {
+          to: { type: "string" },
+          subject: { type: "string" },
+        },
       },
     },
-  );
+  },
+  async (request, reply) => {
+    const { to, subject } = request.body;
 
-  return {
-    success: true,
-    data: job,
-  };
-});
+    const job = await queue.add(
+      "send-email",
+      { to, subject },
+      {
+        attempts: 3,
+        removeOnComplete: true,
+        backoff: {
+          type: "exponential",
+          delay: 2000,
+        },
+      },
+    );
+
+    return {
+      success: true,
+      data: job,
+    };
+  },
+);
 
 app.listen({
   port: 3000,
