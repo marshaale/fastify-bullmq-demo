@@ -1,10 +1,14 @@
 import fastify from "fastify";
 import queue from "./config/queue.js";
 import connection from "./config/redis-connection.js";
+import { fastifySchedule } from "@fastify/schedule";
+import { notificationCronJob } from "./jobs/cron.job.js";
 
 const app = fastify({
   logger: true,
 });
+
+app.register(fastifySchedule);
 
 app.get("/", (request, reply) => {
   return {
@@ -49,6 +53,11 @@ app.post(
     };
   },
 );
+
+app.ready().then(() => {
+  console.log("Here");
+  app.scheduler.addCronJob(notificationCronJob);
+});
 
 app.listen({
   port: 3000,
