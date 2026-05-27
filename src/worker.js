@@ -41,3 +41,29 @@ worker.on("error", (error) => {
 worker.on("closed", () => {
   console.log("Worker is closed");
 });
+
+const notificationWorker = new Worker(
+  "notification-queue",
+  async (job) => {
+    console.log("Notification Date: ", job.data);
+  },
+  {
+    connection,
+  },
+);
+
+notificationWorker.on("completed", (job) => {
+  console.log(`Job ${job.id} is completed`);
+});
+
+notificationWorker.on("failed", (job) => {
+  console.log(`Job ${job.id} is failed`);
+});
+
+notificationWorker.on("error", (error) => {
+  console.log("Worker error: ", error);
+});
+
+notificationWorker.on("closed", () => {
+  console.log("Worker is closed");
+});
